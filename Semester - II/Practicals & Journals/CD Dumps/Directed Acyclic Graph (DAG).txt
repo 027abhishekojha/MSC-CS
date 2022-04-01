@@ -1,0 +1,196 @@
+Practical No. 05
+Directed Acyclic Graph (DAG)
+==========================
+
+Problem Statement:
+===============
+Implement and illustrate with example the program for Directed Acyclic Graph (DAG) .Use the appropriate method 
+to construct DAG in the form of table.
+ Perform the following:
+a.	Define DAG.
+b.	Write a C/C++ program which takes input as three-address codes 
+1.	A=B+C
+2.	B=C+D
+3.	D=A
+c.	Represents DAG in the form of table with fields
+1.	Label,
+2.	Identifier,
+3.	Left child, 
+4.	Right child
+d.	Display the step-by-step output of the DAG.
+e.	Write the pseudo code to implement the DAG.
+f.	Attach the output of the implemented code.
+
+Literature Survey:
+===============
+A useful data structure for automatically analyzing basic blocks is a Directed Acyclic Graph (DAG). A DAG is 
+directed graph with no cycles that gives a picture of how the value computed by each statement in basic blocks is 
+used in subsequent statements in this blocks. Coctructing a DAG from three-address statement is good way of
+ determining common sub expressions within a blocks, determining which names are used inside a blocks but 
+evaluated outside the block, and determining which statements could have their value used outside the block.
+	
+A DAG is directed acyclic graph with the following labels on nodes: 
+
+1.	Levels are labeled by unique identifier either variable name or constant. It is convenient to use leaf labels like addr (A) to denote the lvalue of A, which other identifiers assume to denote r-values. The leaves represent initial values of names, and we shall subscript them with zero to avoid confusion with labels denoting "current " values of names.
+2.	Interior nodes are labeled by an operator symbol. Nodes are also optionally given an extra set of identifiers for labels .The intention is that interior node represents computed values, and identifiers labeling a node are deemed to have the value.
+
+
+	Advantages:
+1.	In DAG we automatically detect common sub expressions.
+2.	We can determine which identifier have their values used in the block, they are exactly those for which a leaf is created.
+3.	We can determine which statement compute values, which could be used outside the block.
+4.	The important use to which the DAG may be put is to reconstruct a simplified list of quadruples of common sub expressions.
+5.	We may in general evaluate interior node of the DAG in any order that is Topological sort of the DAG. This means that a node cannot be evaluated until all of its children that are interior node have been evaluated.
+
+
+Pseudo Code:
+==========
+Step 1: Take Three Address Code from user.
+Step 2: Separate left hand side and right hand side from three-address code.
+Step 3: Find whether three address code is the assignment statement or not.
+Step 4: if not then 
+	     i:  Copy left hand side as node.
+             ii.  Separate left child and right child and operator. Copy it in an array.
+Step 5:  if it is a assignment statement then find out similar node from previous nodes  
+             which has same right hand side as that of current and concatenate to that node.
+Step 6:  Construct table.
+
+
+Source Code:
+===============
+#include<iostream.h>
+#include<string.h>
+#include<stdio.h>
+#include<stdio.h>
+#include<conio.h>
+void main()
+{
+char node[10][10],optr[10],left[10][10],right[10][10],
+add[20][10];
+	int flag,j,k,isSame=0,lastEntryEmpty=0,opt=0,n,i;
+	clrscr();
+
+	cout<<"Enter the total no of address:"<<endl;
+	cin>>n; //total no of three addr codes
+
+	cout<<"Enter the addresses:-->"<<endl;
+	for(i=0;i<n;i++)
+		cin>>add[i];
+
+	char op[]={'+','-','*','/'};
+
+	for(i=0;i<n;i++)
+	{
+			flag=1;
+
+			char *nodeIndex=strchr(add[i],'=');//finding index of = 
+									sign
+			int index=nodeIndex-add[i];//getting index of = sign
+			if(nodeIndex)//if = sign found
+			{
+				if((add[i][index-1]=='>')||(add[i][index-
+1]=='<'))
+					flag=0;//whether it is <= or >= operator
+				else    flag=1;//only = sign
+			}
+			if(flag==1)//
+			{
+				char *lhs,*rhs,*lNode,*rNode,*opIndex;;
+
+				lhs=strtok(add[i],"=");//lhs of code
+				rhs=strtok(NULL,add[i]);//rhs of code
+
+				int isOp=0;
+				for(k=0;k<strlen(rhs);k++)//for searching 
+operator in rhs of code
+				{
+					opIndex=strchr(op,rhs[k]);//searching 						optr
+					if(opIndex)//if optr
+					{
+						if(lastEntryEmpty==0)
+						{
+							optr[i]=rhs[k];//copy optr
+							strcpy(node[i],lhs);//copy node
+						}
+						else
+						{
+							optr[i-1]=rhs[k];//copy optr
+							strcpy(node[i-1],lhs);//copy node
+							opt++;
+						}
+						isOp=1;//setting flag
+					}
+					if(isOp==1)
+						break;
+					else
+						isOp=0;
+				}
+
+				if(isOp==1)
+				{
+					char *opStr;//for optr as a string
+					sprintf(opStr,"%c",rhs[k]);
+
+					lNode=strtok(rhs,opStr);//for left child
+					rNode=strtok(NULL,opStr);//for rightchild
+
+					if(lastEntryEmpty==0)
+					{
+						strcpy(left[i],lNode);
+						strcpy(right[i],rNode);
+					}
+					else
+					{
+						strcpy(left[i-1],lNode);
+						strcpy(right[i-1],rNode);
+					}
+				}
+				else //if there no any operator
+				{
+					for(j=0;j<i;j++)
+					{
+						if(strcmp(rhs,node[j])==0)
+							isSame=1;
+						else	isSame=0;
+						if(isSame==1)
+						{
+							strcat(node[j]," ");
+							strcat(node[j],lhs);
+							lastEntryEmpty=1;
+							if(lastEntryEmpty==1)
+								opt++;
+						}
+					} //end j
+				}
+			}
+      }//end i
+
+      cout<<"node \t optr\t left child \tright child"<<endl;
+      for(i=0;i<=n-opt;i++)
+	     cout<<node[i]<<"\t"<<optr[i]<<"\t\t"<<left[i]<<"\t\t"<<right[i]<<endl;
+
+      getch();
+}
+
+
+
+Sample Input/Output:
+================
+Input:
+
+Enter the total no of address:
+3
+
+Enter the addresses:-->
+A=B+C
+B=C+D
+D=A
+
+Output:
+
+node     optr    left child     right child
+
+A D        +             B               C
+
+B            +             C               D
+
